@@ -1,5 +1,7 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 import os
 from dotenv import load_dotenv
@@ -22,17 +24,28 @@ app = FastAPI()
 # Enable CORS for local frontend testing
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # You can tighten this to ["http://localhost:3000"]
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Define the request model
+# Mount static files (CSS, JS, images, etc.)
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
+
+# Set up Jinja2 template engine
+templates = Jinja2Templates(directory="app/templates")
+
+# Define request model
 class TextInput(BaseModel):
     text: str
 
-# POST endpoint to summarize text
+# Serve frontend HTML page at root
+@app.get("/")
+async def read_root(request: Request):
+    return templates.TemplateResponse("summarizer.html", {"request": request})
+
+# Summarization API endpoint
 @app.post("/summarize")
 async def summarize_text(input: TextInput):
     logging.info(f"📩 Received text to summarize: {input.text[:100]}...")
@@ -41,10 +54,17 @@ async def summarize_text(input: TextInput):
         completion = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "You are a professional assistant that summarizes customer emails."},
+                {
+                    "role": "system",
+                    "content": (
+                        "You are a neutral and concise assistant. "
+                        "Summarize the given text clearly and simply, avoiding phrases like 'the user said' or 'the customer is'. "
+                        "Do not include introductions, assumptions, or commentary. Just return a brief, clear summary."
+                    )
+                },
                 {"role": "user", "content": input.text},
             ],
-            temperature=0.7,
+            temperature=0.5,
             max_tokens=300
         )
 

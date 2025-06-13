@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Smart Summarizer</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1>Smart Summarizer 📝</h1>
+        <form id="summary-form">
+            <textarea id="text-input" name="text" placeholder="Enter text to summarize..." required></textarea>
+            <button id="summarize-button" type="submit">Summarize</button>
+        </form>
+        <div id="result" class="output-box" style="display: none;">
+            <p id="summary-text"></p>
+        </div>
+    </div>
+    <script src="/static/script.js"></script>
+</body>
+</html>

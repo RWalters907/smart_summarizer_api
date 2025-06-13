@@ -1,0 +1,25 @@
+button {
+    background-color: #5e2ca5;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    font-weight: 600;
+}
+
+button:hover {
+    background-color: #4c2391;
+}
+
+.bouncing {
+    animation: bounce 0.4s ease;
+}
+
+@keyframes bounce {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}

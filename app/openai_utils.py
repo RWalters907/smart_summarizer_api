@@ -5,7 +5,6 @@ from app.config import settings
 
 client = OpenAI(api_key=settings.openai_api_key)
 
-async def summarize_text(request: SummarizeRequest) -> SummarizeResponse:
     try:
         response = client.chat.completions.create(
             model="gpt-4o",
