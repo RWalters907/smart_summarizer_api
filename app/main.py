@@ -1,3 +1,4 @@
+print("🟢 RUNNING: app/main.py ✅")
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -85,10 +86,18 @@ async def summarize_text(input: TextInput):
         )
 
         summary = completion.choices[0].message.content.strip()
+        print(f"🧾 Summary returned: {summary}")  # 👈 DEBUG: Show summary in logs
         logging.info("✅ Summary generated successfully.")
         return {"summary": summary}
+
+        # 🧪 TEST MODE: Uncomment below to hardcode a working summary
+        # return {"summary": "This is a test summary."}
 
     except Exception as e:
         logging.error(f"❌ Exception occurred: {e}")
         logging.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail="Internal server error")
+
+@app.get("/ping")
+async def ping():
+    return {"message": "pong"}
