@@ -10,6 +10,9 @@ import logging
 import traceback
 import openai  # For version logging
 
+# ✅ Confirm that main.py is executing at runtime
+print("🚀 MAIN.PY IS RUNNING")
+
 # ✅ Log OpenAI package version at app start (will show in Render logs)
 print(f"✅ OpenAI version: {openai.__version__}")
 
@@ -49,6 +52,9 @@ templates = Jinja2Templates(directory="app/templates")
 class TextInput(BaseModel):
     text: str
 
+# ✅ Confirm that /summarize endpoint is active
+print("📣 /summarize endpoint is defined and active")
+
 # ✅ Frontend HTML route
 @app.get("/")
 async def read_root(request: Request):
@@ -58,6 +64,7 @@ async def read_root(request: Request):
 @app.post("/summarize")
 async def summarize_text(input: TextInput):
     try:
+        print(f"📝 Received input: {input.text[:100]}")  # 👈 TRACE incoming input
         logging.info(f"📩 Received text to summarize: {input.text[:100]}...")
 
         completion = client.chat.completions.create(
