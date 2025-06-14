@@ -8,6 +8,12 @@ from dotenv import load_dotenv
 from openai import OpenAI
 import logging
 
+# ✅ Configure logging so errors and info appear in Render logs
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+)
+
 # Load environment variables from .env file
 load_dotenv()
 
@@ -69,6 +75,7 @@ async def summarize_text(input: TextInput):
         )
 
         summary = completion.choices[0].message.content.strip()
+        logging.info(f"✅ Summary generated successfully.")
         return {"summary": summary}
 
     except Exception as e:
