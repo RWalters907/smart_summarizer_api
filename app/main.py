@@ -7,28 +7,32 @@ import os
 from dotenv import load_dotenv
 from openai import OpenAI
 import logging
-import traceback  # 🧠 For full error stack trace logging
+import traceback
+import openai  # For version logging
 
-# ✅ Configure logging to show info and errors in Render logs
+# ✅ Log OpenAI package version at app start (will show in Render logs)
+print(f"✅ OpenAI version: {openai.__version__}")
+
+# ✅ Configure server logging
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
 )
 
-# Load environment variables from .env file
+# ✅ Load environment variables from .env
 load_dotenv()
 
-# Set up OpenAI client using the latest library format
 api_key = os.getenv("OPENAI_API_KEY")
 if not api_key:
-    raise RuntimeError("OPENAI_API_KEY not found in environment variables.")
+    raise RuntimeError("❌ OPENAI_API_KEY not found in environment variables.")
 
+# ✅ Create OpenAI client (for openai>=1.3.7)
 client = OpenAI(api_key=api_key)
 
-# Initialize FastAPI app
+# ✅ Initialize FastAPI app
 app = FastAPI()
 
-# Enable CORS for local or public frontend access
+# ✅ Enable CORS for all origins (safe for public frontend)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -37,22 +41,20 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Mount static files
+# ✅ Mount static assets and template engine
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
-
-# Set up Jinja2 templates
 templates = Jinja2Templates(directory="app/templates")
 
-# Define request model
+# ✅ Request input model
 class TextInput(BaseModel):
     text: str
 
-# Serve frontend HTML page
+# ✅ Frontend HTML route
 @app.get("/")
 async def read_root(request: Request):
     return templates.TemplateResponse("summarizer.html", {"request": request})
 
-# 🔍 Summarization API endpoint with detailed logging
+# ✅ POST /summarize with full logging
 @app.post("/summarize")
 async def summarize_text(input: TextInput):
     try:
