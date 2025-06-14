@@ -7,8 +7,9 @@ import os
 from dotenv import load_dotenv
 from openai import OpenAI
 import logging
+import traceback  # 🧠 For full error stack trace logging
 
-# ✅ Configure logging so errors and info appear in Render logs
+# ✅ Configure logging to show info and errors in Render logs
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
@@ -27,7 +28,7 @@ client = OpenAI(api_key=api_key)
 # Initialize FastAPI app
 app = FastAPI()
 
-# Enable CORS for local frontend testing
+# Enable CORS for local or public frontend access
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -36,27 +37,27 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Mount static files (CSS, JS, images, etc.)
+# Mount static files
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
-# Set up Jinja2 template engine
+# Set up Jinja2 templates
 templates = Jinja2Templates(directory="app/templates")
 
 # Define request model
 class TextInput(BaseModel):
     text: str
 
-# Serve frontend HTML page at root
+# Serve frontend HTML page
 @app.get("/")
 async def read_root(request: Request):
     return templates.TemplateResponse("summarizer.html", {"request": request})
 
-# Summarization API endpoint
+# 🔍 Summarization API endpoint with detailed logging
 @app.post("/summarize")
 async def summarize_text(input: TextInput):
-    logging.info(f"📩 Received text to summarize: {input.text[:100]}...")
-
     try:
+        logging.info(f"📩 Received text to summarize: {input.text[:100]}...")
+
         completion = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
@@ -75,9 +76,10 @@ async def summarize_text(input: TextInput):
         )
 
         summary = completion.choices[0].message.content.strip()
-        logging.info(f"✅ Summary generated successfully.")
+        logging.info("✅ Summary generated successfully.")
         return {"summary": summary}
 
     except Exception as e:
-        logging.error(f"❌ Error calling OpenAI API: {e}")
-        raise HTTPException(status_code=500, detail=f"OpenAI API error: {e}")
+        logging.error(f"❌ Exception occurred: {e}")
+        logging.error(traceback.format_exc())
+        raise HTTPException(status_code=500, detail="Internal server error")
