@@ -48,3 +48,4 @@ htmlcov/
 
 # Others
 *.sqlite3
+.env

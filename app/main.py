@@ -1,42 +1,46 @@
-print("🟢 RUNNING: app/main.py ✅")
+import os
+import uuid
+import logging
+import traceback
+from datetime import datetime
+
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
-import os
 from dotenv import load_dotenv
 from openai import OpenAI
-import logging
-import traceback
-import openai  # For version logging
+import openai  # for logging version
 
-# ✅ Confirm that main.py is executing at runtime
+# 🔒 Constants
+MAX_LENGTH = 10000
+SUMMARY_DIR = "summaries"
+
+# ✅ Runtime Logs
+print("🟢 RUNNING: app/main.py ✅")
 print("🚀 MAIN.PY IS RUNNING")
-
-# ✅ Log OpenAI package version at app start (will show in Render logs)
 print(f"✅ OpenAI version: {openai.__version__}")
 
-# ✅ Configure server logging
+# ✅ Logging Config
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
 )
 
-# ✅ Load environment variables from .env
+# ✅ Load Environment
 load_dotenv()
-
 api_key = os.getenv("OPENAI_API_KEY")
 if not api_key:
     raise RuntimeError("❌ OPENAI_API_KEY not found in environment variables.")
 
-# ✅ Create OpenAI client (for openai>=1.3.7)
 client = OpenAI(api_key=api_key)
 
-# ✅ Initialize FastAPI app
+# ✅ FastAPI App Init
 app = FastAPI()
 
-# ✅ Enable CORS for all origins (safe for public frontend)
+# ✅ CORS Setup
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -45,27 +49,31 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ✅ Mount static assets and template engine
+# ✅ Static + Templates
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 templates = Jinja2Templates(directory="app/templates")
 
-# ✅ Request input model
+# ✅ Ensure summaries/ exists
+os.makedirs(SUMMARY_DIR, exist_ok=True)
+
+# ✅ Request Model
 class TextInput(BaseModel):
     text: str
 
-# ✅ Confirm that /summarize endpoint is active
-print("📣 /summarize endpoint is defined and active")
-
-# ✅ Frontend HTML route
+# ✅ Home Page Route
 @app.get("/")
 async def read_root(request: Request):
     return templates.TemplateResponse("summarizer.html", {"request": request})
 
-# ✅ POST /summarize with full logging
+# ✅ Summarize Route
 @app.post("/summarize")
 async def summarize_text(input: TextInput):
     try:
-        print(f"📝 Received input: {input.text[:100]}")  # 👈 TRACE incoming input
+        if len(input.text) > MAX_LENGTH:
+            error_msg = f"Maximum characters allowed is {MAX_LENGTH}, please try again."
+            logging.warning(f"⚠️ Input too long: {len(input.text)} characters")
+            raise HTTPException(status_code=400, detail=error_msg)
+
         logging.info(f"📩 Received text to summarize: {input.text[:100]}...")
 
         completion = client.chat.completions.create(
@@ -75,8 +83,8 @@ async def summarize_text(input: TextInput):
                     "role": "system",
                     "content": (
                         "You are a neutral and concise assistant. "
-                        "Summarize the given text clearly and simply, avoiding phrases like 'the user said' or 'the customer is'. "
-                        "Do not include introductions, assumptions, or commentary. Just return a brief, clear summary."
+                        "Summarize the given text clearly and simply, avoiding phrases like 'the user said'. "
+                        "Do not include introductions or commentary. Just return a brief, clear summary."
                     )
                 },
                 {"role": "user", "content": input.text},
@@ -86,18 +94,37 @@ async def summarize_text(input: TextInput):
         )
 
         summary = completion.choices[0].message.content.strip()
-        print(f"🧾 Summary returned: {summary}")  # 👈 DEBUG: Show summary in logs
         logging.info("✅ Summary generated successfully.")
-        return {"summary": summary}
 
-        # 🧪 TEST MODE: Uncomment below to hardcode a working summary
-        # return {"summary": "This is a test summary."}
+        # ✅ Save summary to file
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"summary_{timestamp}_{uuid.uuid4().hex[:6]}.txt"
+        filepath = os.path.join(SUMMARY_DIR, filename)
 
+        with open(filepath, "w") as f:
+            f.write(summary)
+
+        logging.info(f"💾 Summary saved to {filepath}")
+        return {"summary": summary, "filename": filename}
+
+    except HTTPException as he:
+        raise he
     except Exception as e:
         logging.error(f"❌ Exception occurred: {e}")
         logging.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail="Internal server error")
 
-@app.get("/ping")
-async def ping():
-    return {"message": "pong"}
+# ✅ Download Summary Route
+@app.get("/download/{filename}")
+async def download_summary(filename: str):
+    filepath = os.path.join(SUMMARY_DIR, filename)
+    if not os.path.exists(filepath):
+        logging.warning(f"❌ Download failed — file not found: {filename}")
+        raise HTTPException(status_code=404, detail="Summary file not found")
+
+    logging.info(f"📤 Downloading file: {filename}")
+    return FileResponse(
+        filepath,
+        media_type="text/plain",
+        filename=filename
+    )

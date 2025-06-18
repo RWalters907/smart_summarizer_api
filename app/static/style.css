@@ -1,3 +1,44 @@
+/* Global Theme */
+body.snorby-theme {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f7f6fc;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+/* Container */
+.container {
+    max-width: 700px;
+    margin: 60px auto;
+    padding: 30px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    text-align: center;
+}
+
+/* Heading */
+h1 {
+    font-size: 32px;
+    margin-bottom: 20px;
+    color: #5e2ca5;
+}
+
+/* Text Area */
+textarea {
+    width: 100%;
+    height: 200px;
+    padding: 16px;
+    font-size: 16px;
+    border: 2px solid #ccc;
+    border-radius: 12px;
+    resize: vertical;
+    font-family: 'Poppins', sans-serif;
+    margin-bottom: 20px;
+}
+
+/* Primary Button */
 button {
     background-color: #5e2ca5;
     color: white;
@@ -22,4 +63,39 @@ button:hover {
     0%   { transform: scale(1); }
     50%  { transform: scale(1.1); }
     100% { transform: scale(1); }
+}
+
+/* Output Box */
+.output-box {
+    margin-top: 30px;
+    padding: 20px;
+    border: 2px dashed #ccc;
+    border-radius: 12px;
+    background-color: #faf9ff;
+    text-align: left;
+}
+
+/* Summary Text */
+#summary-text {
+    white-space: pre-wrap;
+    font-size: 15px;
+    line-height: 1.5;
+    margin-bottom: 16px;
+}
+
+/* Download Button */
+.download-button {
+    display: inline-block;
+    background-color: #5e2ca5;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.download-button:hover {
+    background-color: #4c2391;
 }

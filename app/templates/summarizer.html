@@ -1,24 +1,110 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Smart Summarizer</title>
-    <link rel="stylesheet" href="/static/style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <title>Smart Summarizer</title>
+  <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f9f9fb;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 60px auto;
+      padding: 30px;
+      background: white;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      border-radius: 16px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 32px;
+      margin-bottom: 24px;
+      color: #5e2ca5;
+    }
+
+    textarea {
+      width: 100%;
+      height: 180px;
+      padding: 16px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-family: 'Poppins', sans-serif;
+      resize: vertical;
+      margin-bottom: 20px;
+    }
+
+    .output-box {
+      margin-top: 20px;
+      background-color: #f2f2ff;
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid #ccc;
+    }
+
+    button, .download-button {
+      background-color: #5e2ca5;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      font-weight: 600;
+      display: block;
+      margin: 0 auto;
+    }
+
+    button:hover, .download-button:hover {
+      background-color: #4c2391;
+    }
+
+    .bouncing {
+      animation: bounce 0.4s ease;
+    }
+
+    @keyframes bounce {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+
+    #summary-text {
+      white-space: pre-wrap;
+      font-size: 15px;
+      color: #333;
+      line-height: 1.6;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Smart Summarizer 📝</h1>
-        <form id="summary-form">
-            <textarea id="text-input" name="text" placeholder="Enter text to summarize..." required></textarea>
-            <button id="summarize-button" type="submit">Summarize</button>
-        </form>
-        <div id="result" class="output-box" style="display: none;">
-            <p id="summary-text"></p>
-        </div>
+  <div class="container">
+    <h1>Smart Summarizer</h1>
+    
+    <form id="summary-form">
+      <textarea id="text-input" name="text" placeholder="Enter text to summarize..." required></textarea>
+      <button id="summarize-button" type="submit">Summarize</button>
+    </form>
+
+    <div id="result" class="output-box" style="display: none;">
+      <p id="summary-text"></p>
+      <div style="text-align: center; margin-top: 16px;">
+        <a id="download-link" href="#" class="download-button" style="display: none;" download="summary.txt">Save</a>
+      </div>
     </div>
-    <script src="/static/script.js"></script>
+  </div>
+
+  <script src="/static/script.js"></script>
 </body>
 </html>
