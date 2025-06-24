@@ -1,3 +1,6 @@
+const BASE_URL =
+  window.location.hostname === "localhost" ? "http://localhost:8001" : "";
+
 document.getElementById("summary-form").addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -19,10 +22,10 @@ document.getElementById("summary-form").addEventListener("submit", async (e) => 
   resultBox.style.display = "none";
 
   try {
-    const response = await fetch("/summarize", {
+    const response = await fetch(`${BASE_URL}/summarize`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text })
+      body: JSON.stringify({ text }),
     });
 
     const data = await response.json();
@@ -33,7 +36,7 @@ document.getElementById("summary-form").addEventListener("submit", async (e) => 
 
       if (data.filename) {
         const filename = data.filename;
-        downloadLink.href = `/download/${filename}`;
+        downloadLink.href = `${BASE_URL}/download/${filename}`;
         downloadLink.setAttribute("download", filename); // Suggested "Save As" name
         downloadLink.style.display = "inline-block";
       }
@@ -48,3 +51,4 @@ document.getElementById("summary-form").addEventListener("submit", async (e) => 
 
   button.disabled = false;
 });
+
